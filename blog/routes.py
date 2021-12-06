@@ -4,27 +4,15 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from blog import app, db, bcrypt
 from blog.models import User, Post
-from blog.forms import RegistrationForm, LoginForm, AccountForm
+from blog.forms import RegistrationForm, LoginForm, AccountForm, PostForm
 from flask_login import login_user, logout_user, login_required, current_user
 
 
 
-posts = [
-    {'title': 'Blog Post 1',
-     'author': 'Moha',
-     'date_posted': '21-April-2020',
-     'content': 'First Blog Content'
-     },
-    {'title': 'Blog Post 2',
-    'author': 'Haji',
-    'date_posted': '21-April-2021',
-    'content': 'Second Blog Content'
-         }
-]
-
 @app.route('/')
 @app.route('/home')
 def home():
+    posts = Post.query.all()
     return render_template('home.html', title='Home Page', posts=posts)
 
 @app.route('/about')
@@ -103,3 +91,22 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
     return render_template('account.html', title='Account', form=form, image_file=image_file)
+
+
+@app.route('/post/new', methods=['GET', 'POST'])
+@login_required
+def post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your posted has been uploaded', 'success')
+        return redirect(url_for('home'))
+    return render_template('create_post.html', title='New Post', form=form)
+
+# @app.route('/post/<int:post.id>')
+# def update_post(post_id):
+#     post = Post.query.get_or_404(post_id)
+#     return render_template('update_post.html', title='Post', legend='Update Post', post=post)
+
