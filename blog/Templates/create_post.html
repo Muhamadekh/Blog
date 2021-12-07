@@ -4,7 +4,7 @@
         {{ form.hidden_tag() }}
         <div class="form-group">
             <fieldset>
-                <legend> Create A New Post </legend>
+                <legend> {{ legend }} </legend>
                 <div class="form-group">
                     {{form.title.label (class="form-control-label") }}
                     {% if form.title.errors %}
